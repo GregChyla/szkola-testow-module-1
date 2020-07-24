@@ -1,19 +1,18 @@
 package modul2;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import modul2.model.Product;
 
-public class VatService implements VatProvider {
+@RequiredArgsConstructor
+public class VatService {
+
+    private final VatProvider vatProvider;
 
     @Getter
     @Setter
     private double vatValue;
-
-
-    public VatService() {
-        this.vatValue = getDefaultVat();
-    }
 
     public double getGrossPriceForDefaultVat(Product product) throws WrongVatException {
         return getGrossPrice(product.getNetPrice(), product);
@@ -23,16 +22,6 @@ public class VatService implements VatProvider {
         if (product.getType().getVatForType() > 1) {
             throw new WrongVatException();
         }
-        return netPrice * (1 + getVatForType(product));
-    }
-
-    @Override
-    public double getDefaultVat() {
-        return 0.23;
-    }
-
-    @Override
-    public double getVatForType(Product product) {
-        return product.getType().getVatForType();
+        return netPrice * (1 + vatProvider.getVatForType(product));
     }
 }
