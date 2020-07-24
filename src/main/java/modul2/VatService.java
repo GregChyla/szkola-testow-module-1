@@ -2,25 +2,37 @@ package modul2;
 
 import lombok.Getter;
 import lombok.Setter;
+import modul2.model.Product;
 
-public class VatService {
+public class VatService implements VatProvider {
 
     @Getter
     @Setter
     private double vatValue;
 
+
     public VatService() {
-        this.vatValue = 0.23;
+        this.vatValue = getDefaultVat();
     }
 
     public double getGrossPriceForDefaultVat(Product product) throws WrongVatException {
-        return getGrossPrice(product.getNetPrice(), vatValue);
+        return getGrossPrice(product.getNetPrice(), product);
     }
 
-    private double getGrossPrice(final double netPrice, final double vatValue) throws WrongVatException {
-        if(vatValue > 1){
+    private double getGrossPrice(final double netPrice, final Product product) throws WrongVatException {
+        if (product.getType().getVatForType() > 1) {
             throw new WrongVatException();
         }
-        return netPrice * (1 + vatValue);
+        return netPrice * (1 + getVatForType(product));
+    }
+
+    @Override
+    public double getDefaultVat() {
+        return 0.23;
+    }
+
+    @Override
+    public double getVatForType(Product product) {
+        return product.getType().getVatForType();
     }
 }
